@@ -1,0 +1,13 @@
+# Build files
+build/
+
+# Installed dependencies
+vcpkg_installed/
+
+# VS Code settings
+.vscode/
+
+# Compiled files
+*.exe
+*.obj
+*.pdb

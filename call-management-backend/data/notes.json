@@ -1,0 +1,77 @@
+[
+    {
+        "id": 1,
+        "call_id": 1,
+        "content": "Customer asked about subscription plans"
+    },
+    {
+        "id": 2,
+        "call_id": 1,
+        "content": "Explained available monthly packages"
+    },
+    {
+        "id": 3,
+        "call_id": 1,
+        "content": "Follow-up scheduled for next week"
+    },
+    {
+        "id": 4,
+        "call_id": 2,
+        "content": "Customer reported slow internet connection"
+    },
+    {
+        "id": 5,
+        "call_id": 2,
+        "content": "Router restart recommended"
+    },
+    {
+        "id": 6,
+        "call_id": 3,
+        "content": "Missed call from potential customer"
+    },
+    {
+        "id": 7,
+        "call_id": 5,
+        "content": "Customer requested billing information"
+    },
+    {
+        "id": 8,
+        "call_id": 5,
+        "content": "Invoice details sent by email"
+    },
+    {
+        "id": 9,
+        "call_id": 6,
+        "content": "Customer interested in upgrading subscription"
+    },
+    {
+        "id": 10,
+        "call_id": 6,
+        "content": "Discussed premium package benefits"
+    },
+    {
+        "id": 11,
+        "call_id": 6,
+        "content": "Customer will decide by Friday"
+    },
+    {
+        "id": 12,
+        "call_id": 7,
+        "content": "Voicemail received regarding service cancellation"
+    },
+    {
+        "id": 13,
+        "call_id": 8,
+        "content": "Technical issue resolved during the call"
+    },
+    {
+        "id": 14,
+        "call_id": 9,
+        "content": "Customer requested a callback tomorrow"
+    },
+    {
+        "id": 15,
+        "call_id": 10,
+        "content": "Customer confirmed satisfaction with support"
+    }
+]
