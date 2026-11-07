@@ -1,0 +1,123 @@
+
+[
+    {
+        "id": 1,
+        "direction": "Inbound",
+        "from_number": "+306910000001",
+        "to_number": "+302100000001",
+        "call_type": "Answered",
+        "duration": 180,
+        "is_archived": false,
+        "created_at": "2026-10-20T10:30:00"
+    },
+    {
+        "id": 2,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000002",
+        "call_type": "Missed",
+        "duration": 0,
+        "is_archived": false,
+        "created_at": "2026-10-21T12:15:00"
+    },
+    {
+        "id": 3,
+        "direction": "Inbound",
+        "from_number": "+306910000003",
+        "to_number": "+302100000001",
+        "call_type": "Voicemail",
+        "duration": 45,
+        "is_archived": false,
+        "created_at": "2026-10-22T14:20:00"
+    },
+    {
+        "id": 4,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000004",
+        "call_type": "Answered",
+        "duration": 320,
+        "is_archived": true,
+        "created_at": "2026-10-23T09:00:00"
+    },
+    {
+        "id": 5,
+        "direction": "Inbound",
+        "from_number": "+306910000005",
+        "to_number": "+302100000001",
+        "call_type": "Answered",
+        "duration": 240,
+        "is_archived": false,
+        "created_at": "2026-10-24T11:45:00"
+    },
+    {
+        "id": 6,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000006",
+        "call_type": "Answered",
+        "duration": 410,
+        "is_archived": false,
+        "created_at": "2026-10-25T16:10:00"
+    },
+    {
+        "id": 7,
+        "direction": "Inbound",
+        "from_number": "+306910000007",
+        "to_number": "+302100000001",
+        "call_type": "Voicemail",
+        "duration": 65,
+        "is_archived": false,
+        "created_at": "2026-10-26T08:35:00"
+    },
+    {
+        "id": 8,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000008",
+        "call_type": "Answered",
+        "duration": 195,
+        "is_archived": true,
+        "created_at": "2026-10-27T13:50:00"
+    },
+    {
+        "id": 9,
+        "direction": "Inbound",
+        "from_number": "+306910000009",
+        "to_number": "+302100000001",
+        "call_type": "Missed",
+        "duration": 0,
+        "is_archived": false,
+        "created_at": "2026-10-28T17:05:00"
+    },
+    {
+        "id": 10,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000010",
+        "call_type": "Answered",
+        "duration": 275,
+        "is_archived": false,
+        "created_at": "2026-10-29T10:20:00"
+    },
+    {
+        "id": 11,
+        "direction": "Inbound",
+        "from_number": "+306910000011",
+        "to_number": "+302100000001",
+        "call_type": "Answered",
+        "duration": 125,
+        "is_archived": false,
+        "created_at": "2026-10-30T15:40:00"
+    },
+    {
+        "id": 12,
+        "direction": "Outbound",
+        "from_number": "+302100000001",
+        "to_number": "+306910000012",
+        "call_type": "Missed",
+        "duration": 0,
+        "is_archived": true,
+        "created_at": "2026-10-31T18:25:00"
+    }
+]
