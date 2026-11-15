@@ -1,75 +1,99 @@
-#include "CallRepository.h"
 
+#include "CallRepository.h"
+#include <string>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <stdexcept>
 
 using json = nlohmann::json;
 
-CallRepository::CallRepository() {
+Direction parseDirection(const std::string& value)
+{
+    if (value == "Inbound")
+    {
+        return Direction::Inbound;
+    }
+    else if (value == "Outbound")
+    {
+        return Direction::Outbound;
+    }
 
+    throw std::invalid_argument("Invalid call direction: " + value);
+}
+
+CallType parseCallType(const std::string& value)
+{
+    if (value == "Answered")
+    {
+        return CallType::Answered;
+    }
+    else if (value == "Missed")
+    {
+        return CallType::Missed;
+    }
+    else if (value == "Voicemail")
+    {
+        return CallType::Voicemail;
+    }
+
+    throw std::invalid_argument("Invalid call type: " + value);
+}
+
+CallRepository::CallRepository()
+{
     std::ifstream file("call-management-backend/data/calls.json");
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open calls.json");
+    }
 
     json data;
     file >> data;
 
-    for (int i = 0; i < data.size(); i++)
+    for (const auto& item : data)
     {
-
         Call call;
-        call.id = data[i]["id"];
-        call.from_number = data[i]["from_number"];
-        call.to_number = data[i]["to_number"];
-        call.duration = data[i]["duration"];
-        call.is_archived = data[i]["is_archived"];
-        call.created_at = data[i]["created_at"];
+        call.id = item["id"];
+        call.from_number = item["from_number"];
+        call.to_number = item["to_number"];
+        call.duration = item["duration"];
+        call.is_archived = item["is_archived"];
+        call.created_at = item["created_at"];
 
-        if (data[i]["direction"] == "Inbound")
-        {
-            call.direction = Direction::Inbound;
-        }
-        else
-        {
-            call.direction = Direction::Outbound;
-        }
-
-        if (data[i]["call_type"] == "Answered")
-        {
-            call.calltype = CallType::Answered;
-        }
-        else if (data[i]["call_type"] == "Missed")
-        {
-            call.calltype = CallType::Missed;
-        }
-        else
-        {
-            call.calltype = CallType::Voicemail;
-        }
+        call.direction = parseDirection(item["direction"].get<std::string>());
+        call.calltype = parseCallType(item["call_type"].get<std::string>());
         calls.push_back(call);
-    }    
+    }
 
     std::ifstream notesFile("call-management-backend/data/notes.json");
+
+    if (!notesFile.is_open())
+    {
+        throw std::runtime_error("Failed to open notes.json");
+    }
 
     json notesData;
     notesFile >> notesData;
 
-    for (int i = 0; i < notesData.size(); i++)
+    for (const auto& item : notesData)
     {
         Note note;
-        note.id = notesData[i]["id"];
-        note.call_id = notesData[i]["call_id"];
-        note.content = notesData[i]["content"];
+        note.id = item["id"];
+        note.call_id = item["call_id"];
+        note.content = item["content"];
+
         notes.push_back(note);
     }
-
 }
 
-std::vector<Call> CallRepository::getAllCalls(){
-
+std::vector<Call> CallRepository::getAllCalls() const
+{
     std::vector<Call> activeCalls;
 
-        for (int i = 0; i < calls.size(); i++)
+    for (int i = 0; i < calls.size(); i++)
     {
-        if (calls[i].is_archived == false)
+        if (!calls[i].is_archived)
         {
             activeCalls.push_back(calls[i]);
         }
@@ -78,43 +102,42 @@ std::vector<Call> CallRepository::getAllCalls(){
     return activeCalls;
 }
 
-
-Call* CallRepository::getCallById(int id) {
-
-
-    
-    for (int i = 0; i < calls.size(); i++)
+std::optional<Call> CallRepository::getCallById(int id) const
+{
+    for (const auto& call : calls)
     {
-        if (calls[i].id == id)
+        if (call.id == id)
         {
-            calls[i].notes.clear();
+            Call result = call;
 
-            for (int j = 0; j < notes.size(); j++)
+            result.notes.clear();
+
+            for (const auto& note : notes)
             {
-                if (notes[j].call_id == id)
+                if (note.call_id == id)
                 {
-                    calls[i].notes.push_back(notes[j]);
+                    result.notes.push_back(note);
                 }
             }
 
-            return &calls[i];
+            return result;
         }
     }
-    
 
-    return nullptr;
+    return std::nullopt;
 }
 
-Call* CallRepository::archiveCall(int id)
+std::optional<Call> CallRepository::archiveCall(int id)
 {
-    Call* call = getCallById(id);
-
-    if (call == nullptr)
+    for (auto& call : calls)
     {
-        return nullptr;
+        if (call.id == id)
+        {
+            call.is_archived = true;
+
+            return getCallById(id);
+        }
     }
 
-    call->is_archived = true;
-
-    return call;
+    return std::nullopt;
 }

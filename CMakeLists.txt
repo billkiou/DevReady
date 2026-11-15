@@ -14,6 +14,8 @@ find_package(nlohmann_json CONFIG REQUIRED
     NO_DEFAULT_PATH
 )
 
+find_package(Crow CONFIG REQUIRED)
+
 add_executable(call-management-backend
     call-management-backend/src/main.cpp
     call-management-backend/src/repositories/CallRepository.cpp
@@ -21,4 +23,15 @@ add_executable(call-management-backend
 
 target_link_libraries(call-management-backend
     PRIVATE nlohmann_json::nlohmann_json
+    Crow::Crow
+)
+
+add_executable(call-management-tests
+    call-management-backend/tests/CallRepositoryTest.cpp
+    call-management-backend/src/repositories/CallRepository.cpp
+)
+
+target_link_libraries(call-management-tests
+    PRIVATE nlohmann_json::nlohmann_json
+    Crow::Crow
 )

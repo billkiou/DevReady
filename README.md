@@ -1,64 +1,141 @@
 # Call Management Backend
 
-A C++ backend project developed for DevReady Week 2.
-
-The application manages call records and their associated notes using JSON files and an in-memory repository.
-
-## Features
-
-- Load calls and notes from JSON files.
-- Retrieve all non-archived calls.
-- Find a call by its ID.
-- Retrieve notes associated with a call.
-- Archive a call by updating its in-memory status.
-- Handle requests for calls that do not exist.
+A C++ backend application for managing call records, built as part of the DevReady Accelerator.
 
 ## Technologies
 
 - C++17
-- CMake
+- Crow HTTP Framework
 - nlohmann/json
-- vcpkg
-
-## How to Run
-
-### Prerequisites
-
-- C++17-compatible compiler
 - CMake
 - vcpkg
 
-### Build
+## Features
 
-From the project root directory:
+- Retrieve all non-archived calls
+- Retrieve a specific call with its notes
+- Archive a call
+- Load initial data from JSON files
+- Handle HTTP errors
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/calls` | Retrieve all active calls |
+| GET | `/calls/{id}` | Retrieve a call with its notes |
+| PATCH | `/calls/{id}/archive` | Archive a call |
+
+## HTTP Status Codes
+
+| Status | Description |
+|---|---|
+| 200 OK | Successful request |
+| 400 Bad Request | Invalid request body |
+| 404 Not Found | Call not found |
+| 405 Method Not Allowed | Unsupported HTTP method |
+| 500 Internal Server Error | Unexpected server error |
+
+## Build and Run
+
+Configure the project using CMake and vcpkg:
 
 ```powershell
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake"
+```
+
+Build:
+
+```powershell
 cmake --build build --config Debug
 ```
 
-### Run
-
-On Windows, using the Visual Studio Debug build:
+Run the server:
 
 ```powershell
 .\build\Debug\call-management-backend.exe
 ```
 
-## Project Structure
+The API runs at `http://localhost:18080`.
 
-- `call-management-backend/data/` — JSON files containing calls and notes.
-- `call-management-backend/src/models/` — Call and Note data models.
-- `call-management-backend/src/repositories/` — CallRepository implementation.
-- `call-management-backend/src/main.cpp` — Tests for repository functionality.
+## Example Requests
 
-## Known Limitations
+**200 OK — Get all active calls**
 
-- Data is stored in memory after loading.
-- Archiving a call does not update the original JSON file.
-- There is no database, HTTP server, or graphical interface.
-- Repository functionality is tested directly from `main.cpp`.
+```powershell
+curl.exe -i http://localhost:18080/calls
+```
 
-## Assignment
+**200 OK — Get a specific call**
 
-DevReady — Week 2: Call Management Backend.
+```powershell
+curl.exe -i http://localhost:18080/calls/1
+```
+
+**200 OK — Archive a call**
+
+```powershell
+curl.exe -i -X PATCH http://localhost:18080/calls/1/archive
+```
+
+**400 Bad Request — Invalid JSON body**
+
+```powershell
+curl.exe -i -X PATCH http://localhost:18080/calls/3/archive -H "Content-Type: application/json" -d "invalid"
+```
+
+Expected response:
+
+```json
+{"error":"Invalid request body"}
+```
+
+**404 Not Found — Call does not exist**
+
+```powershell
+curl.exe -i http://localhost:18080/calls/999
+```
+
+Expected response:
+
+```json
+{"error":"Call not found"}
+```
+
+**405 Method Not Allowed — Unsupported method**
+
+```powershell
+curl.exe -i -X POST http://localhost:18080/calls
+```
+
+**500 Internal Server Error — Exception handling**
+
+A `/test-error` endpoint is included as commented-out code in `main.cpp`.
+
+To test it, uncomment the endpoint, rebuild and restart the server, then run:
+
+```powershell
+curl.exe -i http://localhost:18080/test-error
+```
+
+Expected response:
+
+```json
+{"error":"Internal server error"}
+```
+
+Comment out the test endpoint again after testing.
+
+## Testing
+
+Run the repository tests:
+
+```powershell
+.\build\Debug\call-management-tests.exe
+```
+
+HTTP endpoints and status codes (200, 400, 404, 405, 500) were also manually tested using curl.
+
+## Notes
+
+Call data is loaded from JSON files at startup. Archiving modifies the in-memory repository and is not persisted to the source JSON files.
