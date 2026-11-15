@@ -1,74 +1,124 @@
-
 #include <iostream>
-#include <vector>
+#include <crow.h>
 #include "repositories/CallRepository.h"
+#include <stdexcept>
 
 int main()
 {
-    std::cout << "Call Management Backend" << std::endl;
+    crow::SimpleApp app;
 
-    // Create repository and load calls and notes from JSON files
+    app.exception_handler([](crow::response& res) {
+
+        res.code = 500;
+        res.set_header("Content-Type", "application/json");
+        res.body = R"({"error":"Internal server error"})";
+        res.end();
+    });
+
+
     CallRepository repository;
 
-    //Search for a call that does not exist
-    Call* missingCall = repository.getCallById(999);
+    CROW_ROUTE(app, "/calls") ([&repository]() {
 
-    if (missingCall == nullptr)
-    {
-        std::cout << "Call 999 not found" << std::endl;
-    }
+        std::vector<Call> calls = repository.getAllCalls();
+        std::cout << "Number of calls: " << calls.size() << std::endl;
+        crow::json::wvalue response;
+        response["calls"] = crow::json::wvalue::list();
 
-    //Get a call that exists but has no notes
-    Call* call11 = repository.getCallById(11);
+        for (size_t i = 0; i <calls.size(); i++)
+        {
+            crow::json::wvalue callJson;
 
-    if (call11 != nullptr)
-    {
-        std::cout << "Call 11 notes: " << call11->notes.size() << std::endl;
-    }
+            callJson["id"] = calls[i].id;
+            callJson["direction"] = (calls[i].direction == Direction::Inbound) ? "inbound" : "outbound";
+            callJson["call_type"] = (calls[i].calltype == CallType::Answered) ? "answered" : (calls[i].calltype == CallType::Missed) ? "missed" : "voicemail";
+            callJson["from_number"] = calls[i].from_number;
+            callJson["to_number"] = calls[i].to_number;
+            callJson["duration"] = calls[i].duration;
+            callJson["is_archived"] = calls[i].is_archived;
+            callJson["created_at"] = calls[i].created_at;
 
-    //Get an existing call and check its notes
-    Call* call = repository.getCallById(1);
+            response["calls"][i] = std::move(callJson);
+        }
 
-    if (call != nullptr)
-    {
-        std::cout << "Call found! ID: " << call->id << std::endl;
-        std::cout << "Notes count: " << call->notes.size() << std::endl;
-    }
-    else
-    {
-        std::cout << "Call not found!" << std::endl;
-    }
 
-    //Archive an existing call
-    Call* archived = repository.archiveCall(1);
 
-    if (archived != nullptr)
-    {
-        std::cout << "Call archived successfully!" << std::endl;
-        std::cout << "Is archived: " << archived->is_archived << std::endl;
-    }
-    else
-    {
-        std::cout << "Call not found!" << std::endl;
-    }
+        return response;
+    });
 
-    // Test 5: Try to archive a call that does not exist
-    Call* missingArchive = repository.archiveCall(999);
+    CROW_ROUTE(app, "/calls/<int>") ([&repository](int callid) {
 
-    if (missingArchive == nullptr)
-    {
-        std::cout << "Call 999 cannot be archived" << std::endl;
-    }
+        std::optional<Call> call = repository.getCallById(callid);
 
-    //Get all non-archived calls
-    std::vector<Call> activeCalls = repository.getAllCalls();
+        if (!call.has_value())
+        {
+            return crow::response(404, R"({"error":"Call not found"})");
+        }
+        
+        crow::json::wvalue response;
 
-    std::cout << "Active Calls:" << std::endl;
+        response["id"] = call->id;
+        response["direction"] = (call->direction == Direction::Inbound) ? "inbound" : "outbound";
+        response["call_type"] = (call->calltype == CallType::Answered) ? "answered" : (call->calltype == CallType::Missed) ? "missed" : "voicemail";
+        response["from_number"] = call->from_number;
+        response["to_number"] = call->to_number;
+        response["duration"] = call->duration;
+        response["is_archived"] = call->is_archived;
+        response["created_at"] = call->created_at;
+        response["notes"] = crow::json::wvalue::list();
 
-    for (int i = 0; i < activeCalls.size(); i++)
-    {
-        std::cout << "Call ID: " << activeCalls[i].id << std::endl;
-    }
+        for (size_t i = 0; i < call->notes.size(); i++)
+        {
+            crow::json::wvalue noteJson;
+            noteJson["id"] = call->notes[i].id;
+            noteJson["call_id"] = call->notes[i].call_id;
+            noteJson["content"] = call->notes[i].content;
+
+            response["notes"][i] = std::move(noteJson);
+        }
+
+        return crow::response(200, response.dump());
+
+    });
+
+
+    CROW_ROUTE(app, "/calls/<int>/archive").methods(crow::HTTPMethod::PATCH)([&repository](const crow::request& req, int callid) {
+
+        if (!req.body.empty()) {
+
+            auto body = crow::json::load(req.body);
+
+            if (!body)
+            {
+                return crow::response(400, R"({"error":"Invalid request body"})");
+            }
+        }
+
+        std::optional<Call> call = repository.archiveCall(callid);
+
+        if (!call.has_value())
+        {
+            return crow::response(404, R"({"error":"Call not found"})");
+        }
+
+
+        crow::json::wvalue response;
+
+        response["id"] = call->id;
+        response["is_archived"]  = call->is_archived;
+
+        return crow::response(200, response.dump());
+    });
+
+ /*   //Test for 500 Internal Server Error
+    CROW_ROUTE(app, "/test-error")
+    ([]() {
+    throw std::runtime_error("Test server error");
+    return crow::response(200);
+    });
+*/
+    app.port(18080).run();
+
 
     return 0;
 }
